@@ -2,16 +2,13 @@
 // Created by meirelles on 12/31/25.
 //
 
+#include "common.h"
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
-
-typedef struct {
-    const char *ip;
-    uint16_t port;
-} address;
 
 address handle_inputs(const int argc, const char **argv) {
     const char *ip_address;
@@ -66,7 +63,7 @@ int start_socket(void) {
     return fd;
 }
 
-struct sockaddr_in get_sock_addr(address addr) {
+struct sockaddr_in get_sock_addr(const address addr) {
     struct in_addr s_addr;
 
     inet_pton(AF_INET, addr.ip, &s_addr);
@@ -75,5 +72,20 @@ struct sockaddr_in get_sock_addr(address addr) {
         .sin_family = AF_INET,
         .sin_port = htons(addr.port),
         .sin_addr = s_addr
+    };
+}
+
+connection_config initialize_connection(const int argc, const char **argv) {
+    const address input_address = handle_inputs(argc, argv);
+
+    const int socket_file_descriptor = start_socket();
+
+    const struct sockaddr_in sock_addr = get_sock_addr(input_address);
+
+    return (connection_config) {
+        .fd = socket_file_descriptor,
+        .socket_address = sock_addr,
+        .ip = input_address.ip,
+        .port = input_address.port
     };
 }

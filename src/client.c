@@ -9,7 +9,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 3
 
 int main(void) {
     const int fd = socket(AF_INET, SOCK_DGRAM, 0);

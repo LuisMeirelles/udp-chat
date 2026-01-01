@@ -11,21 +11,34 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 3
 
 int main(const int argc, const char **argv) {
     const char *ip_address;
+    size_t s_addr;
+
     uint16_t port = 0;
 
     if (argc == 1) {
-        printf("address not provided, assuming `127.0.0.1`.\n");
+        fprintf(stderr, "address not provided, assuming `127.0.0.1`.\n");
         ip_address = "127.0.0.1";
     } else {
         ip_address = argv[1];
     }
 
+    const in_addr_t ip_conversion = inet_pton(AF_INET, ip_address, &s_addr);
+
+    switch (ip_conversion) {
+        case 0:
+            fprintf(stderr, "The source string (%s) is not a valid IP address in the AF_INET family.", ip_address);
+            return -1;
+        case -1:
+            perror("inet_pton");
+            return -1;
+    }
+
     if (argc <= 2) {
-        printf("port not provided, assuming `1234`.\n");
+        fprintf(stderr, "port not provided, assuming `1234`.\n");
         port = 1234;
     } else {
         char *endptr;
@@ -48,8 +61,7 @@ int main(const int argc, const char **argv) {
 
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
-
-    inet_pton(AF_INET, ip_address, &addr.sin_addr.s_addr);
+    addr.sin_addr.s_addr = s_addr;
 
     const int connection = bind(fd, (const struct sockaddr *) &addr, sizeof(addr));
 
@@ -70,11 +82,14 @@ int main(const int argc, const char **argv) {
 
         if (n == -1) {
             perror("An error occurred while trying to receive a message from socket");
+            close(fd);
+
             return recv_error;
         }
 
         /// Here, we separate the packets by `/n`, but in the future we will loop through the connections (perhaps using
         /// `recv_from` and a connection pool?) so that we can detect `\0` at the end of the message.
-        write(STDOUT_FILENO, buf, n);
+        fwrite(buf, n, 1, stdout);
+        fflush(stdout);
     } while (1);
 }

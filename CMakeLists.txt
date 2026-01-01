@@ -28,10 +28,17 @@ add_library(chat_server STATIC
 target_include_directories(chat_server PUBLIC include/server)
 target_link_libraries(chat_server PUBLIC chat_common)
 
+# library for client runtime
+add_library(chat_client STATIC
+        src/client/client_runtime.c
+)
+target_include_directories(chat_client PUBLIC include/client)
+target_link_libraries(chat_client PUBLIC chat_common)
+
 # linking main server with server runtime
 add_executable(udp_server src/server/server.c)
 target_link_libraries(udp_server PRIVATE chat_server)
 
-# linking main client directly to common lib
+# linking main client with client runtime
 add_executable(udp_client src/client/client.c)
-target_link_libraries(udp_client PRIVATE chat_common)
+target_link_libraries(udp_client PRIVATE chat_client)

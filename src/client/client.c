@@ -4,10 +4,9 @@
 
 #include <errno.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <sys/socket.h>
 
 #include "common.h"
+#include "runtime.h"
 
 #define BUFFER_SIZE 2
 
@@ -20,26 +19,5 @@ int main(const int argc, const char **argv) {
 
     const struct sockaddr_in sock_addr = get_sock_addr(input_address);
 
-    do {
-        char message[BUFFER_SIZE] = {0};
-
-        const ssize_t bytes_read = read(STDIN_FILENO, message, BUFFER_SIZE);
-
-        if (bytes_read == -1) {
-            const short error = errno;
-            perror("Error while trying to read bytes from stdin");
-
-            return error;
-        }
-
-        const ssize_t bytes_sent = sendto(socket_file_descriptor, message, bytes_read, 0,
-                                          (const struct sockaddr *) &sock_addr, sizeof(sock_addr));
-
-        if (bytes_sent == -1) {
-            const short error = errno;
-            perror("error while trying to send bytes to server");
-
-            return error;
-        }
-    } while (1);
+    run_client(socket_file_descriptor, sock_addr, BUFFER_SIZE);
 }

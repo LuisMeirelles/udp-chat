@@ -14,4 +14,6 @@ typedef struct {
 
 address handle_inputs(int argc, const char **argv);
 
+int start_socket(void);
+
 #endif //CHAT_COMMON_H

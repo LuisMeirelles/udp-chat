@@ -4,7 +4,6 @@
 
 #include <errno.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -19,12 +18,7 @@ int main(const int argc, const char **argv) {
 
     fprintf(stderr, "Running on %s:%d\n", input_address.ip, input_address.port);
 
-    const int fd = socket(AF_INET, SOCK_DGRAM, 0);
-
-    if (fd == -1) {
-        fprintf(stderr, "An error occurred when trying to start a socket");
-        return errno;
-    }
+    const int socket_file_descriptor = start_socket();
 
     struct in_addr s_addr;
 
@@ -36,13 +30,13 @@ int main(const int argc, const char **argv) {
         .sin_addr = s_addr
     };
 
-    const int connection = bind(fd, (const struct sockaddr *) &sock_addr, sizeof(sock_addr));
+    const int connection = bind(socket_file_descriptor, (const struct sockaddr *) &sock_addr, sizeof(sock_addr));
 
     const short bind_error = errno;
 
     if (connection == -1) {
         perror("An error occurred while trying to bind socket");
-        close(fd);
+        close(socket_file_descriptor);
 
         return bind_error;
     }
@@ -50,12 +44,12 @@ int main(const int argc, const char **argv) {
     do {
         char buf[BUFFER_SIZE] = {0};
 
-        const ssize_t n = recv(fd, buf, BUFFER_SIZE, 0);
+        const ssize_t n = recv(socket_file_descriptor, buf, BUFFER_SIZE, 0);
         const short recv_error = errno;
 
         if (n == -1) {
             perror("An error occurred while trying to receive a message from socket");
-            close(fd);
+            close(socket_file_descriptor);
 
             return recv_error;
         }

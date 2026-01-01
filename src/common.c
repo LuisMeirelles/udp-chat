@@ -5,6 +5,7 @@
 #ifndef CHAT_COMMON_H
 #define CHAT_COMMON_H
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
@@ -56,6 +57,15 @@ address handle_inputs(const int argc, const char **argv) {
     };
 }
 
+int start_socket(void) {
+    const int fd = socket(AF_INET, SOCK_DGRAM, 0);
 
+    if (fd == -1) {
+        fprintf(stderr, "An error occured when trying to start a socket");
+        return errno;
+    }
+
+    return fd;
+}
 
 #endif //CHAT_COMMON_H

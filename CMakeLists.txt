@@ -17,11 +17,13 @@ add_library(chat_common STATIC
         src/common.c
 )
 
-target_include_directories(chat_common PUBLIC include)
+target_include_directories(chat_common PUBLIC include/chat)
 
 target_link_libraries(chat_common PUBLIC project_warnings)
 
-add_executable(udp_server src/server.c)
+add_executable(udp_server src/server.c src/server_runtime.c)
+target_include_directories(udp_server PRIVATE include/server)
+
 add_executable(udp_client src/client.c)
 
 target_link_libraries(udp_server PRIVATE chat_common)

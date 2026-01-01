@@ -7,9 +7,9 @@
 #include <unistd.h>
 #include <sys/socket.h>
 
-#include "chat/common.h"
+#include "common.h"
 
-#define BUFFER_SIZE 3
+#define BUFFER_SIZE 2
 
 int main(const int argc, const char **argv) {
     const address input_address = handle_inputs(argc, argv);
@@ -36,7 +36,7 @@ int main(const int argc, const char **argv) {
         const short sendto_error = errno;
 
         if (bytes_sent == -1) {
-            perror("error while etrying to send bytes to server");
+            perror("error while trying to send bytes to server");
             return sendto_error;
         }
     } while (1);

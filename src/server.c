@@ -4,12 +4,11 @@
 
 #include <errno.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <sys/socket.h>
 
-#include "chat/common.h"
+#include "common.h"
+#include "runtime.h"
 
-#define BUFFER_SIZE 3
+#define BUFFER_SIZE 2
 
 int main(const int argc, const char **argv) {
     const address input_address = handle_inputs(argc, argv);
@@ -20,32 +19,5 @@ int main(const int argc, const char **argv) {
 
     const struct sockaddr_in sock_addr = get_sock_addr(input_address);
 
-    const int bind_status = bind(socket_file_descriptor, (const struct sockaddr *) &sock_addr, sizeof(sock_addr));
-    const short bind_error = errno;
-
-    if (bind_status == -1) {
-        perror("An error occurred while trying to bind socket");
-        close(socket_file_descriptor);
-
-        return bind_error;
-    }
-
-    do {
-        char buf[BUFFER_SIZE] = {0};
-
-        const ssize_t bytes_recvd = recv(socket_file_descriptor, buf, BUFFER_SIZE, 0);
-        const short recv_error = errno;
-
-        if (bytes_recvd == -1) {
-            perror("An error occurred while trying to receive a message from socket");
-            close(socket_file_descriptor);
-
-            return recv_error;
-        }
-
-        /// Here, we separate the packets by `/n`, but in the future we will loop through the connections (perhaps using
-        /// `recv_from` and a connection pool?) so that we can detect `\0` at the end of the message.
-        fwrite(buf, bytes_recvd, 1, stdout);
-        fflush(stdout);
-    } while (1);
+    run_server(socket_file_descriptor, sock_addr, BUFFER_SIZE);
 }

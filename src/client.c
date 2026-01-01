@@ -31,6 +31,6 @@ int main(void) {
 
         fgets(message, sizeof(message), stdin);
 
-        sendto(fd, &message, sizeof(message), 0, (const struct sockaddr *) &addr, sizeof(addr));
+        sendto(fd, message, sizeof(message), 0, (const struct sockaddr *) &addr, sizeof(addr));
     } while (1);
 }

@@ -38,7 +38,7 @@ int main(void) {
 
     do {
         memset(&buf, 0, 1024);
-        recvfrom(fd, buf, 1024, 0, (struct sockaddr *) &addr, (unsigned int *) sizeof(addr));
+        recv(fd, buf, 1024, 0);
         printf("%s", buf);
     } while (1);
 }

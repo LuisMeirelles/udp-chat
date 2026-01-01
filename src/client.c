@@ -22,9 +22,11 @@ int main(void) {
     addr.sin_port = htons(1234);
     addr.sin_addr.s_addr = INADDR_ANY;
 
-    const char message[1024] = "teste\n";
+    do {
+        char message[1024];
 
-    sendto(fd, message, sizeof(message), 0, (const struct sockaddr *) &addr, sizeof(addr));
+        fgets(message, sizeof(message), stdin);
 
-    return 0;
+        sendto(fd, &message, sizeof(message), 0, (const struct sockaddr *) &addr, sizeof(addr));
+    } while (1);
 }

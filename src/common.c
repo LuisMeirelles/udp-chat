@@ -51,7 +51,7 @@ address handle_inputs(const int argc, const char **argv) {
         }
     }
 
-    return (address) {
+    return (address){
         .ip = ip_address,
         .port = port
     };
@@ -68,4 +68,15 @@ int start_socket(void) {
     return fd;
 }
 
+struct sockaddr_in get_sock_addr(address addr) {
+    struct in_addr s_addr;
+
+    inet_pton(AF_INET, addr.ip, &s_addr);
+
+    return (struct sockaddr_in) {
+        .sin_family = AF_INET,
+        .sin_port = htons(addr.port),
+        .sin_addr = s_addr
+    };
+}
 #endif //CHAT_COMMON_H

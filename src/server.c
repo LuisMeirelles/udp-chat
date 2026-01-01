@@ -20,15 +20,7 @@ int main(const int argc, const char **argv) {
 
     const int socket_file_descriptor = start_socket();
 
-    struct in_addr s_addr;
-
-    inet_pton(AF_INET, input_address.ip, &s_addr);
-
-    const struct sockaddr_in sock_addr = {
-        .sin_family = AF_INET,
-        .sin_port = htons(input_address.port),
-        .sin_addr = s_addr
-    };
+    const struct sockaddr_in sock_addr = get_sock_addr(input_address);
 
     const int connection = bind(socket_file_descriptor, (const struct sockaddr *) &sock_addr, sizeof(sock_addr));
 

@@ -16,4 +16,6 @@ address handle_inputs(int argc, const char **argv);
 
 int start_socket(void);
 
+struct sockaddr_in get_sock_addr(address);
+
 #endif //CHAT_COMMON_H

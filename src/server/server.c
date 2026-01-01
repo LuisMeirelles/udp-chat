@@ -5,8 +5,8 @@
 #include <errno.h>
 #include <stdio.h>
 
-#include "common.h"
-#include "runtime.h"
+#include "chat/common.h"
+#include "server/runtime.h"
 
 #define BUFFER_SIZE 2
 

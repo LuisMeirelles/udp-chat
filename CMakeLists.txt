@@ -18,21 +18,19 @@ endif ()
 add_library(chat_common STATIC
         src/chat/common.c
 )
-target_include_directories(chat_common PUBLIC include/chat)
+target_include_directories(chat_common PUBLIC include)
 target_link_libraries(chat_common PUBLIC project_warnings)
 
 # library for server runtime
 add_library(chat_server STATIC
         src/server/server_runtime.c
 )
-target_include_directories(chat_server PUBLIC include/server)
 target_link_libraries(chat_server PUBLIC chat_common)
 
 # library for client runtime
 add_library(chat_client STATIC
         src/client/client_runtime.c
 )
-target_include_directories(chat_client PUBLIC include/client)
 target_link_libraries(chat_client PUBLIC chat_common)
 
 # linking main server with server runtime

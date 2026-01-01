@@ -2,7 +2,7 @@
 // Created by meirelles on 12/31/25.
 //
 
-#include "common.h"
+#include "chat/common.h"
 
 #include <errno.h>
 #include <stdio.h>

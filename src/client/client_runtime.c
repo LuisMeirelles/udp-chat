@@ -15,11 +15,14 @@ void run_client(const int fd, const struct sockaddr_in sock_addr, const size_t b
 
         const ssize_t bytes_read = read(STDIN_FILENO, message, buffer_size);
 
-        if (bytes_read == -1) {
-            const short error = errno;
-            perror("Error while trying to read bytes from stdin");
+        switch (bytes_read) {
+            case -1:
+                const short error = errno;
+                perror("Error while trying to read bytes from stdin");
 
-            exit(error);
+                exit(error);
+            case 0:
+                continue;
         }
 
         const ssize_t bytes_sent = sendto(fd, message, bytes_read, 0,

@@ -11,26 +11,28 @@
 
 void run_server(const int fd, const struct sockaddr_in bind_addr, const size_t buffer_size) {
     const int bind_status = bind(fd, (const struct sockaddr *) &bind_addr, sizeof(bind_addr));
-    const short bind_error = errno;
 
     if (bind_status == -1) {
+        const short error = errno;
+
         perror("An error occurred while trying to bind socket");
         close(fd);
 
-        exit(bind_error);
+        exit(error);
     }
 
     do {
         char buf[buffer_size];
 
         const ssize_t bytes_recvd = recv(fd, buf, buffer_size, 0);
-        const short recv_error = errno;
 
         if (bytes_recvd == -1) {
+            const short error = errno;
+
             perror("An error occurred while trying to receive a message from socket");
             close(fd);
 
-            exit(recv_error);
+            exit(error);
         }
 
         /// Here, we separate the packets by `/n`, but in the future we will loop through the connections (perhaps using

@@ -24,20 +24,22 @@ int main(const int argc, const char **argv) {
         char message[BUFFER_SIZE] = {0};
 
         const ssize_t bytes_read = read(STDIN_FILENO, message, BUFFER_SIZE);
-        const short read_error = errno;
 
         if (bytes_read == -1) {
+            const short error = errno;
             perror("Error while trying to read bytes from stdin");
-            return read_error;
+
+            return error;
         }
 
         const ssize_t bytes_sent = sendto(socket_file_descriptor, message, bytes_read, 0,
                                           (const struct sockaddr *) &sock_addr, sizeof(sock_addr));
-        const short sendto_error = errno;
 
         if (bytes_sent == -1) {
+            const short error = errno;
             perror("error while trying to send bytes to server");
-            return sendto_error;
+
+            return error;
         }
     } while (1);
 }

@@ -3,7 +3,6 @@
 //
 
 #include <errno.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,9 +12,7 @@
 #include <netinet/in.h>
 
 void run_server(const int fd, const struct sockaddr_in bind_addr, const size_t buffer_size, const size_t max_peers) {
-    struct sockaddr_in peers[max_peers];
-
-    memset(peers, 0, sizeof(peers));
+    struct sockaddr_in *peers = calloc(max_peers, sizeof(struct sockaddr_in));
 
     size_t peers_count = 0;
 
@@ -34,17 +31,20 @@ void run_server(const int fd, const struct sockaddr_in bind_addr, const size_t b
         char buf[buffer_size];
 
         struct sockaddr_in addr_recvd;
-        socklen_t addr_size;
+        socklen_t addr_size = sizeof(struct sockaddr_in);
 
         const ssize_t bytes_recvd = recvfrom(fd, buf, buffer_size, 0, (struct sockaddr *) &addr_recvd, &addr_size);
 
-        if (bytes_recvd == -1) {
-            const short error = errno;
+        switch (bytes_recvd) {
+            case -1:
+                const short error = errno;
 
-            perror("An error occurred while trying to receive a message from socket");
-            close(fd);
+                perror("An error occurred while trying to receive a message from socket");
+                close(fd);
 
-            exit(error);
+                exit(error);
+            case 0:
+                continue;
         }
 
         ssize_t peer_index = -1;
@@ -69,9 +69,10 @@ void run_server(const int fd, const struct sockaddr_in bind_addr, const size_t b
             peers_count++;
 
             printf("Message received from %s:%d:\n\t", a, addr_recvd.sin_port);
+            fflush(stdout);
         }
 
-        if (buf[buffer_size - 1 > 0 ? buffer_size - 1 : buffer_size] == '\n') {
+        if (buf[bytes_recvd - 1] == '\n') {
             memset(&peers[peer_index], 0, sizeof(struct sockaddr_in));
             peers_count--;
         }

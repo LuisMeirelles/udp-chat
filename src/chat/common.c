@@ -10,6 +10,11 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
+typedef struct {
+    const char *ip;
+    uint16_t port;
+} address;
+
 address handle_inputs(const int argc, const char **argv) {
     const char *ip_address;
 

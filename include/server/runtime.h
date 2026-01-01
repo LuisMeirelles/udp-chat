@@ -7,6 +7,6 @@
 
 #include <netinet/in.h>
 
-void run_server(int fd, struct sockaddr_in bind_addr, size_t buffer_size);
+void run_server(int fd, struct sockaddr_in bind_addr, size_t buffer_size, size_t max_peers);
 
 #endif //CHAT_RUNTIME_H

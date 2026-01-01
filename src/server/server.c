@@ -9,11 +9,12 @@
 #include "server/runtime.h"
 
 #define BUFFER_SIZE 2
+#define MAX_PEERS 2
 
 int main(const int argc, const char **argv) {
     const connection_config config = initialize_connection(argc, argv);
 
     fprintf(stderr, "Listening on %s:%d\n", config.ip, config.port);
 
-    run_server(config.fd, config.socket_address, BUFFER_SIZE);
+    run_server(config.fd, config.socket_address, BUFFER_SIZE, MAX_PEERS);
 }

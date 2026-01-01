@@ -4,14 +4,34 @@
 
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 
 #define BUFFER_SIZE 1024
 
-int main(void) {
+int main(const int argc, const char **argv) {
+    const char *ip_address;
+    uint16_t port = 0;
+
+    if (argc == 1) {
+        printf("address not provided, assuming `127.0.0.1`.\n");
+        ip_address = "127.0.0.1";
+    } else {
+        ip_address = argv[1];
+    }
+
+    if (argc <= 2) {
+        printf("port not provided, assuming `1234`.\n");
+        port = 1234;
+    } else {
+        char *endptr;
+        port = strtoul(argv[2], &endptr, 10);
+    }
+
     const int fd = socket(AF_INET, SOCK_DGRAM, 0);
 
     if (fd == -1) {
@@ -22,8 +42,9 @@ int main(void) {
     struct sockaddr_in addr = {0};
 
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(1234);
-    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_port = htons(port);
+
+    inet_pton(AF_INET, ip_address, &addr.sin_addr.s_addr);
 
     const int connection = bind(fd, (const struct sockaddr *) &addr, sizeof(addr));
 

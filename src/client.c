@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 
 int main(void) {
     const int fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -16,11 +17,14 @@ int main(void) {
         return errno;
     }
 
+    unsigned int ip_addr;
+
+    inet_pton(AF_INET, "127.0.0.1", &ip_addr);
     struct sockaddr_in addr = {0};
 
     addr.sin_family = AF_INET;
     addr.sin_port = htons(1234);
-    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_addr.s_addr = ip_addr;
 
     do {
         char message[1024];

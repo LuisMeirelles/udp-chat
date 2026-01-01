@@ -30,6 +30,11 @@ int main(const int argc, const char **argv) {
     } else {
         char *endptr;
         port = strtoul(argv[2], &endptr, 10);
+
+        if (*endptr != '\0') {
+            fprintf(stderr, "short integer not valid. conversion from string to short failed");
+            return -1;
+        }
     }
 
     const int fd = socket(AF_INET, SOCK_DGRAM, 0);

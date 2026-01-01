@@ -5,9 +5,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <arpa/inet.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
 
 #include "chat/common.h"
 
@@ -22,11 +20,10 @@ int main(const int argc, const char **argv) {
 
     const struct sockaddr_in sock_addr = get_sock_addr(input_address);
 
-    const int connection = bind(socket_file_descriptor, (const struct sockaddr *) &sock_addr, sizeof(sock_addr));
-
+    const int bind_status = bind(socket_file_descriptor, (const struct sockaddr *) &sock_addr, sizeof(sock_addr));
     const short bind_error = errno;
 
-    if (connection == -1) {
+    if (bind_status == -1) {
         perror("An error occurred while trying to bind socket");
         close(socket_file_descriptor);
 
@@ -36,10 +33,10 @@ int main(const int argc, const char **argv) {
     do {
         char buf[BUFFER_SIZE] = {0};
 
-        const ssize_t n = recv(socket_file_descriptor, buf, BUFFER_SIZE, 0);
+        const ssize_t bytes_recvd = recv(socket_file_descriptor, buf, BUFFER_SIZE, 0);
         const short recv_error = errno;
 
-        if (n == -1) {
+        if (bytes_recvd == -1) {
             perror("An error occurred while trying to receive a message from socket");
             close(socket_file_descriptor);
 
@@ -48,7 +45,7 @@ int main(const int argc, const char **argv) {
 
         /// Here, we separate the packets by `/n`, but in the future we will loop through the connections (perhaps using
         /// `recv_from` and a connection pool?) so that we can detect `\0` at the end of the message.
-        fwrite(buf, n, 1, stdout);
+        fwrite(buf, bytes_recvd, 1, stdout);
         fflush(stdout);
     } while (1);
 }

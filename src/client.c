@@ -5,9 +5,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <netinet/in.h>
 #include <sys/socket.h>
-#include <arpa/inet.h>
 
 #include "chat/common.h"
 
@@ -25,8 +23,21 @@ int main(const int argc, const char **argv) {
     do {
         char message[BUFFER_SIZE] = {0};
 
-        const size_t read_bytes = read(STDIN_FILENO, message, BUFFER_SIZE);
+        const ssize_t bytes_read = read(STDIN_FILENO, message, BUFFER_SIZE);
+        const short read_error = errno;
 
-        sendto(socket_file_descriptor, &message, read_bytes, 0, (const struct sockaddr *) &sock_addr, sizeof(sock_addr));
+        if (bytes_read == -1) {
+            perror("Error while trying to read bytes from stdin");
+            return read_error;
+        }
+
+        const ssize_t bytes_sent = sendto(socket_file_descriptor, message, bytes_read, 0,
+                                          (const struct sockaddr *) &sock_addr, sizeof(sock_addr));
+        const short sendto_error = errno;
+
+        if (bytes_sent == -1) {
+            perror("error while etrying to send bytes to server");
+            return sendto_error;
+        }
     } while (1);
 }

@@ -2,13 +2,11 @@
 // Created by meirelles on 12/31/25.
 //
 
-#ifndef CHAT_COMMON_H
-#define CHAT_COMMON_H
-
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 
 typedef struct {
     const char *ip;
@@ -61,8 +59,8 @@ int start_socket(void) {
     const int fd = socket(AF_INET, SOCK_DGRAM, 0);
 
     if (fd == -1) {
-        fprintf(stderr, "An error occured when trying to start a socket");
-        return errno;
+        perror("An error occured when trying to start a socket");
+        exit(errno);
     }
 
     return fd;
@@ -73,10 +71,9 @@ struct sockaddr_in get_sock_addr(address addr) {
 
     inet_pton(AF_INET, addr.ip, &s_addr);
 
-    return (struct sockaddr_in) {
+    return (struct sockaddr_in){
         .sin_family = AF_INET,
         .sin_port = htons(addr.port),
         .sin_addr = s_addr
     };
 }
-#endif //CHAT_COMMON_H

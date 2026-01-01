@@ -6,6 +6,7 @@
 #define CHAT_COMMON_H
 
 #include <stdint.h>
+#include <netinet/in.h>
 
 typedef struct {
     const char *ip;

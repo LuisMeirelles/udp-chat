@@ -15,18 +15,17 @@
 
 int main(const int argc, const char **argv) {
     const char *ip_address;
-    size_t s_addr;
+    struct in_addr s_addr;
 
     uint16_t port = 0;
 
     if (argc == 1) {
-        fprintf(stderr, "address not provided, assuming `127.0.0.1`.\n");
         ip_address = "127.0.0.1";
     } else {
         ip_address = argv[1];
     }
 
-    const in_addr_t ip_conversion = inet_pton(AF_INET, ip_address, &s_addr);
+    const int ip_conversion = inet_pton(AF_INET, ip_address, &s_addr);
 
     switch (ip_conversion) {
         case 0:
@@ -38,7 +37,6 @@ int main(const int argc, const char **argv) {
     }
 
     if (argc <= 2) {
-        fprintf(stderr, "port not provided, assuming `1234`.\n");
         port = 1234;
     } else {
         char *endptr;
@@ -50,10 +48,12 @@ int main(const int argc, const char **argv) {
         }
     }
 
+    fprintf(stderr, "Running on %s:%d\n", ip_address, port);
+
     const int fd = socket(AF_INET, SOCK_DGRAM, 0);
 
     if (fd == -1) {
-        perror("An error occurred when trying to start a socket");
+        fprintf(stderr, "An error occurred when trying to start a socket");
         return errno;
     }
 
@@ -61,7 +61,7 @@ int main(const int argc, const char **argv) {
 
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = s_addr;
+    addr.sin_addr = s_addr;
 
     const int connection = bind(fd, (const struct sockaddr *) &addr, sizeof(addr));
 

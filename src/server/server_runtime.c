@@ -47,6 +47,35 @@ void receive_from(const int fd, const size_t buffer_size, message *msg) {
     msg->length = bytes_recvd;
 }
 
+ssize_t update_peers(struct sockaddr_in **peers, size_t *peers_count, struct sockaddr_in **addr_recvd) {
+    ssize_t peer_index = -1;
+
+    for (size_t i = 0; i < *peers_count; i++) {
+        const struct sockaddr_in peer = *peers[i];
+
+        if (
+            peer.sin_addr.s_addr == (*addr_recvd)->sin_addr.s_addr
+            && peer.sin_port == (*addr_recvd)->sin_port
+        ) {
+            peer_index = (ssize_t) i;
+            break;
+        }
+    }
+
+    if (peer_index == -1) {
+        peers[*peers_count] = *addr_recvd;
+        (*peers_count)++;
+
+        char readable_address[15] = {0};
+        inet_ntop(AF_INET, &(*addr_recvd)->sin_addr.s_addr, readable_address, 15);
+
+        printf("Message received from %s:%d:\n\t", readable_address, (*addr_recvd)->sin_port);
+        fflush(stdout);
+    }
+
+    return peer_index;
+}
+
 void run_server(const int fd, const struct sockaddr_in bind_addr, const size_t buffer_size, const size_t max_peers) {
     struct sockaddr_in *peers = calloc(max_peers, sizeof(struct sockaddr_in));
     size_t peers_count = 0;
@@ -62,7 +91,7 @@ void run_server(const int fd, const struct sockaddr_in bind_addr, const size_t b
 
         receive_from(fd, buffer_size, &msg);
 
-        const struct sockaddr_in *addr_recvd = &msg.address;
+        struct sockaddr_in *addr_recvd = &msg.address;
 
         const size_t bytes_recvd = msg.length;
 
@@ -70,30 +99,7 @@ void run_server(const int fd, const struct sockaddr_in bind_addr, const size_t b
             continue;
         }
 
-        ssize_t peer_index = -1;
-
-        for (size_t i = 0; i < peers_count; i++) {
-            const struct sockaddr_in peer = peers[i];
-
-            if (
-                peer.sin_addr.s_addr == addr_recvd->sin_addr.s_addr
-                && peer.sin_port == addr_recvd->sin_port
-            ) {
-                peer_index = (ssize_t) i;
-                break;
-            }
-        }
-
-        if (peer_index == -1) {
-            peers[peers_count] = *addr_recvd;
-            peers_count++;
-
-            char readable_address[15] = {0};
-            inet_ntop(AF_INET, &addr_recvd->sin_addr.s_addr, readable_address, 15);
-
-            printf("Message received from %s:%d:\n\t", readable_address, addr_recvd->sin_port);
-            fflush(stdout);
-        }
+       const size_t peer_index = update_peers(&peers, &peers_count, &addr_recvd);
 
         if (buf[bytes_recvd - 1] == '\n') {
             memset(&peers[peer_index], 0, sizeof(struct sockaddr_in));

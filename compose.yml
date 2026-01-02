@@ -1,0 +1,20 @@
+services:
+  client:
+    image: alpine
+    volumes:
+      - ./:/app
+    working_dir: /app
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: sh -c "apk add cmake build-base && cmake -S . -B build-client && cmake --build build-client"
+    entrypoint: ./build-client/udp_client
+
+  server:
+    image: alpine
+    volumes:
+      - ./:/app
+    working_dir: /app
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: sh -c "apk add cmake build-base && cmake -S . -B build-server && cmake --build build-server"
+    entrypoint: ./build-server/udp_server

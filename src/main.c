@@ -7,15 +7,15 @@
 #include <unistd.h>
 #include <sys/select.h>
 
-#include "chat/common.h"
-#include "client/runtime.h"
-#include "server/runtime.h"
+#include "common.h"
 
 #define BUFFER_SIZE 2
 #define MAX_PEERS 5
 
 int main(const int argc, const char **argv) {
-    const connection_config config = initialize_connection(argc, argv);
+    (void) argc;
+
+    const connection_config config = initialize_connection(argv);
 
     bind_address(config.source_fd, config.source_address);
 
@@ -35,8 +35,6 @@ int main(const int argc, const char **argv) {
         if (retval == -1) {
             perror("select()");
         } else {
-            printf("Data is available now.\n");
-
             if (FD_ISSET(STDIN_FILENO, &read_fd_set)) {
                 send_from_stdin(config.destination_fd, config.destination_address, BUFFER_SIZE);
             } else if (FD_ISSET(config.source_fd, &read_fd_set)) {

@@ -15,14 +15,12 @@ else ()
 endif ()
 
 # library for client runtime
-add_library(chat_client STATIC
-        src/client/client_runtime.c
-        src/chat/common.c
-        src/server/server_runtime.c
+add_library(deps STATIC
+        src/common.c
 )
-target_include_directories(chat_client PUBLIC include)
-target_link_libraries(chat_client PUBLIC project_warnings)
+target_include_directories(deps PUBLIC include)
+target_link_libraries(deps PUBLIC project_warnings)
 
 # linking main client with client runtime
-add_executable(udp_client src/client/client.c)
-target_link_libraries(udp_client PRIVATE chat_client)
+add_executable(udp-chat src/main.c)
+target_link_libraries(udp-chat PRIVATE deps)

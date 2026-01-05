@@ -10,10 +10,11 @@
 #include <netinet/in.h>
 
 void run_client(const int fd, const struct sockaddr_in sock_addr, const size_t buffer_size) {
-    do {
-        char message[buffer_size];
+    ssize_t bytes_read = 0;
+    char message[buffer_size];
 
-        const ssize_t bytes_read = read(STDIN_FILENO, message, buffer_size);
+    do {
+        bytes_read = read(STDIN_FILENO, message, buffer_size);
 
         switch (bytes_read) {
             case -1:
@@ -34,5 +35,5 @@ void run_client(const int fd, const struct sockaddr_in sock_addr, const size_t b
 
             exit(error);
         }
-    } while (1);
+    } while (message[bytes_read - 1] != '\n');
 }

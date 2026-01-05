@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
@@ -81,16 +82,46 @@ struct sockaddr_in get_sock_addr(const address addr) {
 }
 
 connection_config initialize_connection(const int argc, const char **argv) {
-    const address input_address = handle_inputs(argc, argv);
+    const char *in_args[3] = {
+        argv[0],
+        argv[1],
+        argv[2]
+    };
+
+    const char *dst_args[3] = {
+        argv[0],
+        argv[3],
+        argv[4]
+    };
+
+    const address input_address = handle_inputs(3, in_args);
+    const address destination_address = handle_inputs(3, dst_args);
 
     const int socket_file_descriptor = start_socket();
+    const int dst_socket_file_descriptor = start_socket();
 
     const struct sockaddr_in sock_addr = get_sock_addr(input_address);
+    const struct sockaddr_in dst_addr = get_sock_addr(destination_address);
 
     return (connection_config) {
-        .fd = socket_file_descriptor,
-        .socket_address = sock_addr,
+        .source_fd = socket_file_descriptor,
+        .destination_fd = dst_socket_file_descriptor,
+        .source_address = sock_addr,
+        .destination_address = dst_addr,
         .ip = input_address.ip,
         .port = input_address.port
     };
+}
+
+void bind_address(const int fd, const struct sockaddr_in bind_addr) {
+    const int bind_status = bind(fd, (const struct sockaddr *) &bind_addr, sizeof(bind_addr));
+
+    if (bind_status == -1) {
+        const short error = errno;
+
+        perror("An error occurred while trying to bind socket");
+        close(fd);
+
+        exit(error);
+    }
 }

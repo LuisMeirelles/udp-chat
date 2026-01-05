@@ -11,19 +11,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-void bind_address(const int fd, const struct sockaddr_in bind_addr) {
-    const int bind_status = bind(fd, (const struct sockaddr *) &bind_addr, sizeof(bind_addr));
-
-    if (bind_status == -1) {
-        const short error = errno;
-
-        perror("An error occurred while trying to bind socket");
-        close(fd);
-
-        exit(error);
-    }
-}
-
 typedef struct {
     char *data;
     struct sockaddr_in address;
@@ -76,11 +63,9 @@ ssize_t update_peers(struct sockaddr_in **peers, size_t *peers_count, struct soc
     return peer_index;
 }
 
-void run_server(const int fd, const struct sockaddr_in bind_addr, const size_t buffer_size, const size_t max_peers) {
+void run_server(const int fd, const size_t buffer_size, const size_t max_peers) {
     struct sockaddr_in *peers = calloc(max_peers, sizeof(struct sockaddr_in));
     size_t peers_count = 0;
-
-    bind_address(fd, bind_addr);
 
     do {
         char buf[buffer_size];
@@ -101,14 +86,14 @@ void run_server(const int fd, const struct sockaddr_in bind_addr, const size_t b
 
        const size_t peer_index = update_peers(&peers, &peers_count, &addr_recvd);
 
+        fwrite(buf, bytes_recvd, 1, stdout);
+        fflush(stdout);
+
         if (buf[bytes_recvd - 1] == '\n') {
             memset(&peers[peer_index], 0, sizeof(struct sockaddr_in));
             peers_count--;
-        }
 
-        /// Here, we separate the packets by `/n`, but in the future we will loop through the connections (perhaps using
-        /// `recv_from` and a connection pool?) so that we can detect `\0` at the end of the message.
-        fwrite(buf, bytes_recvd, 1, stdout);
-        fflush(stdout);
+            break;
+        }
     } while (1);
 }

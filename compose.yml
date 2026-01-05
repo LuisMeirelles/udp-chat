@@ -1,20 +1,19 @@
 services:
-  client:
-    image: alpine
-    volumes:
-      - ./:/app
-    working_dir: /app
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    command: sh -c "apk add cmake build-base && cmake -S . -B build-client && cmake --build build-client"
-    entrypoint: ./build-client/udp_client
-
-  server:
-    image: alpine
-    volumes:
-      - ./:/app
-    working_dir: /app
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    command: sh -c "apk add cmake build-base && cmake -S . -B build-server && cmake --build build-server"
-    entrypoint: ./build-server/udp_server
+  jane-doe:
+    build: .
+    tty: true
+    stdin_open: true
+    entrypoint: >
+      /bin/sh -c "
+        TARGET_IP=$$(getent hosts john-doe | awk '{print $$1}') &&
+        ./build/udp-chat 0.0.0.0 1234 $$TARGET_IP 4321
+      "
+  john-doe:
+    build: .
+    tty: true
+    stdin_open: true
+    entrypoint: >
+      /bin/sh -c "
+        TARGET_IP=$$(getent hosts jane-doe | awk '{print $$1}') &&
+        ./build/udp-chat 0.0.0.0 4321 $$TARGET_IP 1234
+      "

@@ -63,7 +63,7 @@ ssize_t update_peers(struct sockaddr_in **peers, size_t *peers_count, struct soc
     return peer_index;
 }
 
-void run_server(const int fd, const size_t buffer_size, const size_t max_peers) {
+void read_from_socket(const int fd, const size_t buffer_size, const size_t max_peers) {
     struct sockaddr_in *peers = calloc(max_peers, sizeof(struct sockaddr_in));
     size_t peers_count = 0;
 

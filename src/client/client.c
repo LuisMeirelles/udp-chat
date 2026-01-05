@@ -23,11 +23,6 @@ int main(const int argc, const char **argv) {
 
     fd_set read_fd_set;
 
-    struct timeval tv = {
-        .tv_sec = 3600,
-        .tv_usec = 0,
-    };
-
     do {
         FD_ZERO(&read_fd_set);
 
@@ -35,25 +30,18 @@ int main(const int argc, const char **argv) {
         FD_SET(config.source_fd, &read_fd_set);
 
         // ReSharper disable once CppDFAEndlessLoop
-        const int retval = select(config.source_fd + 1, &read_fd_set, NULL, NULL, &tv);
+        const int retval = select(config.source_fd + 1, &read_fd_set, NULL, NULL, NULL);
 
-        switch (retval) {
-            case -1:
-                perror("select()");
-                break;
-            case 0:
-                printf("No data within 30 seconds.\n");
-                break;
-            default:
-                printf("Data is available now.\n");
+        if (retval == -1) {
+            perror("select()");
+        } else {
+            printf("Data is available now.\n");
 
-                if (FD_ISSET(STDIN_FILENO, &read_fd_set)) {
-                    run_client(config.destination_fd, config.destination_address, BUFFER_SIZE);
-                } else if (FD_ISSET(config.source_fd, &read_fd_set)) {
-                    run_server(config.source_fd, BUFFER_SIZE, MAX_PEERS);
-                }
-
-                break;
+            if (FD_ISSET(STDIN_FILENO, &read_fd_set)) {
+                send_from_stdin(config.destination_fd, config.destination_address, BUFFER_SIZE);
+            } else if (FD_ISSET(config.source_fd, &read_fd_set)) {
+                read_from_socket(config.source_fd, BUFFER_SIZE, MAX_PEERS);
+            }
         }
 
         // ReSharper disable once CppDFAEndlessLoop

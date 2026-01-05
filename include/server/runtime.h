@@ -5,6 +5,6 @@
 #ifndef CHAT_SERVER_RUNTIME_H
 #define CHAT_SERVER_RUNTIME_H
 
-void run_server(int fd, size_t buffer_size, size_t max_peers);
+void read_from_socket(int fd, size_t buffer_size, size_t max_peers);
 
 #endif //CHAT_SERVER_RUNTIME_H

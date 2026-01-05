@@ -9,7 +9,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-void run_client(const int fd, const struct sockaddr_in sock_addr, const size_t buffer_size) {
+void send_from_stdin(const int fd, const struct sockaddr_in sock_addr, const size_t buffer_size) {
     ssize_t bytes_read = 0;
     char message[buffer_size];
 

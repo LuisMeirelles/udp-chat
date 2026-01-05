@@ -32,13 +32,14 @@ address handle_inputs(const int argc, const char **argv) {
     struct in_addr s_addr;
     const int ip_conversion = inet_pton(AF_INET, ip_address, &s_addr);
 
-    switch (ip_conversion) {
-        case 0:
-            fprintf(stderr, "The source string (%s) is not a valid IP address in the AF_INET family.", ip_address);
-            exit(-1);
-        case -1:
-            perror("inet_pton");
-            exit(-1);
+    if (ip_conversion == 0) {
+        fprintf(stderr, "The source string (%s) is not a valid IP address in the AF_INET family.", ip_address);
+        exit(-1);
+    }
+
+    if (ip_conversion == -1) {
+        perror("inet_pton");
+        exit(-1);
     }
 
     if (argc <= 2) {
@@ -134,18 +135,24 @@ void send_from_stdin(const int fd, const struct sockaddr_in sock_addr, const siz
     do {
         bytes_read = read(STDIN_FILENO, message, buffer_size);
 
-        switch (bytes_read) {
-            case -1:
-                const short error = errno;
-                perror("Error while trying to read bytes from stdin");
+        if (bytes_read == -1) {
+            const short error = errno;
+            perror("Error while trying to read bytes from stdin");
 
-                exit(error);
-            case 0:
-                continue;
+            exit(error);
         }
 
-        const ssize_t bytes_sent = sendto(fd, message, bytes_read, 0,
-                                          (const struct sockaddr *) &sock_addr, sizeof(sock_addr));
+        if (bytes_read == 0) {
+            continue;
+        }
+
+        const ssize_t bytes_sent = sendto(
+            fd,
+            message,
+            bytes_read,
+            0,
+            (const struct sockaddr *) &sock_addr, sizeof(sock_addr)
+        );
 
         if (bytes_sent == -1) {
             const short error = errno;

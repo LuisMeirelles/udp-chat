@@ -219,7 +219,7 @@ void read_from_socket(const int fd, const size_t buffer_size, const size_t max_p
     struct sockaddr_in *peers = calloc(max_peers, sizeof(struct sockaddr_in));
     size_t peers_count = 0;
 
-    fwrite("<< ", 3, 1, stdout);
+    fwrite("\x1b[1G\x1b[0K\n<< ", 12, 1, stdout);
 
     do {
         char buf[buffer_size];
@@ -246,9 +246,6 @@ void read_from_socket(const int fd, const size_t buffer_size, const size_t max_p
         if (buf[bytes_recvd - 1] == '\n') {
             memset(&peers[peer_index], 0, sizeof(struct sockaddr_in));
             peers_count--;
-
-            fwrite(">> ", 3, 1, stdout);
-            fflush(stdout);
 
             break;
         }

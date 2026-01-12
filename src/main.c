@@ -24,6 +24,10 @@ int main(const int argc, const char **argv) {
     fd_set read_fd_set;
 
     do {
+        // ReSharper disable once CppDFAEndlessLoop
+        fwrite(">> ", 3, 1, stdout);
+        fflush(stdout);
+
         FD_ZERO(&read_fd_set);
 
         FD_SET(STDIN_FILENO, &read_fd_set);
